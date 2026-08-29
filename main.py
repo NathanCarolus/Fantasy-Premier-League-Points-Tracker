@@ -1,7 +1,6 @@
-import requests
-import prompts 
+import prompts as prompt
 import teams as ts
-import team as t
+import team as t 
 import league
 import players as ps
 import player as p
@@ -9,14 +8,15 @@ import api
 def main():
       option = 0
       fpl_data = get_fpl_data()                                                #API request for data 
-      football_teams = ts.get_clubs(fpl_data)                                  #All football clubs
-      football_players = ps.get_players(fpl_data)                              #All football players
+      football_teams = ts.get_teams(fpl_data)                                  #All football clubs
+      football_players = ps.get_players_data(fpl_data)                              #All football players
      # league_data = get_league_data()
      # standings = league.get_standings(league_data)
     #  print_league_standings(standings)
 
       while option != -1:
-            option = options()
+            options()
+            option = int(prompt.get_option())
             match option:
                   case -1:
                         print("Thank you for visiting")
@@ -39,47 +39,46 @@ def main():
 def view_squad_list(teams,players):
      ts.print_teams(teams)
      print("")
-     team_name = input("Enter a team name: ")
+     team_name = prompt.team_name()
      print("")
-     team_id = t.get_team_id(teams,team_name)
-     player_list = ps.get_players_in_team(players,team_id)
-     if len(player_list) == 0:
+     team_id = ts.get_team_id(teams,team_name)
+     player_list = t.get_players_in_team(players,team_id)
+     if player_list == None:
            print("Team was not found")
            return
      for player in player_list:
-          print(player)
+          print(p.get_player_name(player))
 
-# Method to find premier league 
+# Method to find current Premier League Players 
 def search_for_player(teams,players):
-      player_name = input("Enter player name: ")
-      player_list = []
-      id = ps.get_player_id(players,player_name)
+      player_name = prompt.player_name()
+      print()
 
-      while id != -1:
-            player_list.append(ps.get_player(players,id))
-      if len(player_list):
+      player_list = ps.get_players(players,player_name)
+
+      if  player_list == None:
             print("No players found")
       else:
             for player in player_list:
-                  print(p.get_player_club(teams,player))
+                  print(f"{p.get_player_name(player):<35}{p.get_player_club(teams,player)}")
 
 #           API RELATED METHODS                 
 
 # API Request for Teams and Players
 def get_fpl_data():         
-      return api.api_request("https://fantasy.premierleague.com/api/bootstrap-static/")
+      return api.get_fpl_data()
 
-# API request to get data for a particular fpl squad
-def get_squad_data(team_id):
-      return api.api_request(f"https://fantasy.premierleague.com/api/entry/{team_id}/")
+# Returns squad data
+def get_squad_data(squad_id):
+      return api.get_squad_data(squad_id)
 
-# API request for a particular league
+# Returns league data
 def get_league_data(league_id):
-      return api.api_request(f"https://fantasy.premierleague.com/api/leagues-classic/{league_id}/standings/")
+      return api.get_league_data(league_id)
 
-# API request foir a particular manager
+# Returns manager data
 def get_manager_data(manager_id):
-      return api.api_request(f"https://fantasy.premierleague.com/api/entry/{manager_id}/")
+      return api.get_manager_data(manager_id)
 
 # print league standings when standings is a json
 def print_league_standings(standings):
@@ -89,7 +88,7 @@ def print_league_standings(standings):
             rank = f"{manager['rank']}."
             print(f"{rank:<5}{manager['entry_name']:<25}{manager['player_name']:<30}{manager['total']:<10}{manager['entry']}")
 
-# Displaying options      
+# Displaying options      76
 def options():
       print("1. View Premier League Table")
       print("2. View Premier League Squad")
@@ -98,6 +97,6 @@ def options():
       print("5. View FPL manager Data")
       print("Enter -1 to exit")
       print("")
-      return int(input("Select an option: "))
+
 if __name__ == "__main__":
       main()

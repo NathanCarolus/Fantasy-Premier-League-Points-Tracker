@@ -7,3 +7,18 @@ def api_request(url):
       else:
             print(f"Error: Unable to fetch data (Status Code:{response.status_code})")
             return None
+# API request for an fpl manager
+def get_manager_data(manager_id):
+      return api_request(f"https://fantasy.premierleague.com/api/entry/{manager_id}/")
+
+# API request for an fpl league
+def get_league_data(league_id):
+      return api_request(f"https://fantasy.premierleague.com/api/leagues-classic/{league_id}/standings/")
+
+# API request for an fpl managers particular squad in a given GW
+def get_squad_data(squad_id):
+      return api_request(f"https://fantasy.premierleague.com/api/entry/{squad_id}/")
+
+# API request for general fpl data
+def get_fpl_data():
+      return api_request("https://fantasy.premierleague.com/api/bootstrap-static/")

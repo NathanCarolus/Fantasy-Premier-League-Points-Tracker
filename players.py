@@ -1,5 +1,6 @@
 import player as p
-def get_players(data):
+
+def get_players_data(data):
       return data['elements']
 # returns a player
 def get_player(players,player_id):
@@ -7,17 +8,21 @@ def get_player(players,player_id):
         if player['id'] == player_id:
             return player    
 
-# returns the ID of the respective player
-def get_player_id(players, player_name):
+# returns a list of palyers the respective player name
+def get_players(players, player_name):
+    player_list = []
+    name = player_name.lower()
+
     for player in players:
-        if (player['first_name'] or player['second_name'] or player['web_name'] or player['known_name']) == player_name:
-            return player['id']
-    else:
-        return -1
-    
-def get_players_in_team(players,team_id):
-    player_name_list = []
-    for player in players:
-        if player['team'] == team_id:
-            player_name_list.append(p.get_player_name(player))
-    return player_name_list
+        first = str(player.get('first_name','')).lower()
+        second = str(player.get('second_name','')).lower()
+        known = str(player.get('known_name','')).lower()
+        web = str(player.get('web_name','')).lower()
+        if (first == name or 
+            second == name or 
+            known == name  or
+            web == name):
+            player_list.append(player)
+
+    return player_list
+
