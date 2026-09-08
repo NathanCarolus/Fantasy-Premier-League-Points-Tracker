@@ -5,6 +5,8 @@ import league
 import players as ps
 import player as p
 import api
+import gameweek as gw
+import manager
 def main():
       option = 0
       fpl_data = get_fpl_data()                                                #API request for data 
@@ -32,16 +34,33 @@ def main():
                   case 4: 
                         return None
                   case 5: 
-                        return None
+                        
+                        manager_id = input("Enter manager ID: ")
+                        view_manager_profile(manager_id)
+                        manager_data = get_manager_data(manager_id)
+                        if input("View leagues (Y/N)?: ") == "Y":
+                              print_manager_leagues(manager_data)
+                        if input("View gameweek (Y/N)?: ") == "Y":
+                              gameweek_id = int(prompt.gameweek_id())
+                              print("")
+                              print(f"SQUAD FOR GAMEWEEK {gameweek_id}")
+                              print("")
+                              live_data = get_gameweek_data(gameweek_id)
+                              picks_data = get_picks_data(manager_id,gameweek_id)
+                              report = gw.get_squad_gameweek_report(picks_data,live_data,football_players)
+                              print("")
+                              print_squad_gameweek_report(report)
+                              print("")
+                              
                       
 
 # Method to view all the players who belong to a certain squad
 def view_squad_list(teams,players):
-     ts.print_teams(teams)
+     print_teams(teams)
      print("")
      team_name = prompt.team_name()
      print("")
-     team_id = ts.get_team_id(teams,team_name)
+     team_id = t.get_team_id(teams,team_name)
      player_list = t.get_players_in_team(players,team_id)
      if player_list == None:
            print("Team was not found")
@@ -62,6 +81,17 @@ def search_for_player(teams,players):
             for player in player_list:
                   print(f"{p.get_player_name(player):<35}{p.get_player_club(teams,player)}")
 
+
+def view_manager_profile(manager_id):
+      manager_data = get_manager_data(manager_id)
+
+      print(f"Name: {manager.get_manager_name(manager_data)}")
+      print(f"Country: {manager.get_manager_country(manager_data)}")
+      print(f"Team Name: {manager.get_manager_team_name(manager_data)}")
+      print("")
+
+
+
 #           API RELATED METHODS                 
 
 # API Request for Teams and Players
@@ -80,15 +110,30 @@ def get_league_data(league_id):
 def get_manager_data(manager_id):
       return api.get_manager_data(manager_id)
 
-# print league standings when standings is a json
-def print_league_standings(standings):
-      print("League standings")
-      print(f"{'#':<5}{'Team Name':<25}{'ManagerName':<30}{'Total':<10}Team ID")
-      for manager in standings['results']:
-            rank = f"{manager['rank']}."
-            print(f"{rank:<5}{manager['entry_name']:<25}{manager['player_name']:<30}{manager['total']:<10}{manager['entry']}")
+# get data for a managers picks
+def get_picks_data(manager_id,gameweek_id):
+      return api.get_manager_gameweek_data(manager_id,gameweek_id)
 
-# Displaying options      76
+# Returns the data for a specific game week
+def get_gameweek_data(gameweek_id):
+      return api.get_live_gameweek_data(gameweek_id)
+
+#           PRINTING RELATED METHODS  
+
+# game week report    
+def print_squad_gameweek_report(report):
+      print(f"{'Player':<30}{'Cap':<5}{'Mult':<6}{'Raw Pts':<9}Applied Pts")
+      for entry in report:
+            cap = "(C)" if entry['is_captain'] == True else ""
+            print(f"{entry['name']:<30}{cap:<5}{entry['multiplier']:<6}{entry['raw_points']:<9}{entry['applied_points']}")
+
+# Prints the leagues that the respective manager is in
+def print_manager_leagues(manager_data):
+      rankings = league.manager_leagues(manager_data)
+      for rank in rankings:
+            print(rank)
+
+# Displaying options      
 def options():
       print("1. View Premier League Table")
       print("2. View Premier League Squad")
@@ -98,5 +143,17 @@ def options():
       print("Enter -1 to exit")
       print("")
 
+# print all teams 
+def print_teams(teams):
+      for team in teams:
+            print(team['name'])
+
+# print league standings when standings is a json
+def print_league_standings(standings):
+      print("League standings")
+      print(f"{'#':<5}{'Team Name':<25}{'ManagerName':<30}{'Total':<10}Team ID")
+      for manager in standings['results']:
+            rank = f"{manager['rank']}."
+            print(f"{rank:<5}{manager['entry_name']:<25}{manager['player_name']:<30}{manager['total']:<10}{manager['entry']}")
 if __name__ == "__main__":
       main()

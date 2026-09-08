@@ -1,4 +1,3 @@
-import teams as ts
 import team as t
 def get_player_name(player):
     name = f"{player['first_name']} {player['second_name']}"
@@ -7,7 +6,13 @@ def get_player_name(player):
 # Returns the club name of a player
 def get_player_club(clubs,player):
     club_id = player['team']
-    return ts.get_club_name(clubs,club_id)
+    return t.get_club_name(clubs,club_id)
 
 def get_player_position(player):
     return None
+
+# returns a player
+def get_player(players,player_id):
+    for player in players:
+        if player['id'] == player_id:
+            return player    

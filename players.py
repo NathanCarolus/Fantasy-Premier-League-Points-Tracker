@@ -2,11 +2,6 @@ import player as p
 
 def get_players_data(data):
       return data['elements']
-# returns a player
-def get_player(players,player_id):
-    for player in players:
-        if player['id'] == player_id:
-            return player    
 
 # returns a list of palyers the respective player name
 def get_players(players, player_name):
